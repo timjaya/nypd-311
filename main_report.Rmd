@@ -1,0 +1,29 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# 311 NYPD Data
+
+## 1. Introduction
+
+### 1a. Motivation
+
+### 1b. Team Contribution
+
+1. Donghan He: Data Preprocessing, Data Quality Analysis
+2. Nico Winata: 
+3. Charlene Luo:
+4. Tim Kartawijaya:
+
+## 2. Description of Data (Donghan He)
+
+## 3. Analysis of Data Quality (Donghan He)
+
+## 4. Main Analysis
+
+## 5. Executive Summary
+
+## 6. Interactive Component
+
+## 7. Conclusion
