@@ -7,23 +7,78 @@ output: html_notebook
 
 ## 1. Introduction
 
-### 1a. Motivation
+### 1a. Motivation (Tim)
+311 used by government to monitor efficiency and also for public to keep government agencies accountable. 
+Cite Resources. 
 
-### 1b. Team Contribution
+Use Case:
+- Operations for 311: 
+  - allocate more resources for incidents for areas and time 
+- Incident Patterns:
+  - new homeowners, find which location is less noisy/more noisy fit their needs
+  - police, identifying underlying crime patterns (crime hot-spots)
+  - policy-makers, lots of complain about traffic, fix roads/traffic lights
 
-1. Donghan He: Data Preprocessing, Data Quality Analysis
+### 1b. Main Questions (Everyone): 
+1. **Operations/Efficiency:** 
+- What areas/month/time of day/incident types are police most/least efficient? (WHY: allocate resources)
+- What causes calls to be most/least efficient? (Connect with distance to police station channel data type, time of day/year, etc.)
+- Instead of efficiency analyze when police actually took action vs. false alarm. 
+
+2. **Incident Patterns:**
+- At which locations do specific incident types occur the most? Most notable patterns? (incident type, false alarm/actual action)
+- At what time of day do specific incident types occur the most? Most notable patterns?
+- (Tim) How do incidents change throughout the months/year? e.g. What years do some incidents peak? (Tim will do an animation showing the incidents by month/year in D3 (month/yearly process), but maybe finding a most notable pattern)
+
+### 1c. Team Contribution (Everyone)
+
+(Write how each person contributed to the project)
+1. Donghan He: 
 2. Nico Winata: 
 3. Charlene Luo:
 4. Tim Kartawijaya:
 
-## 2. Description of Data (Donghan He)
+## 2. Description of Data (Donghan)
+- Source
+- How it was collected in NYC Open Data
+- Noteworthy Features
 
-## 3. Analysis of Data Quality (Donghan He)
+## 3. Analysis of Data Quality (Donghan)
+- Data Quality 
+- Graphs/Code 
 
 ## 4. Main Analysis
 
-## 5. Executive Summary
+```{r}
+library(tidyverse)
+df = read_csv("cleaned_data.csv")
+```
 
-## 6. Interactive Component
+### 4a. Data Preprocessing (Donghan)
+- Explain data cleaning process
+- Mention Python Script cleaning
 
-## 7. Conclusion
+In analyzing the 311 Data, we will format these analyses in the form of questions we want answered. **Include approaches that didn't work and challenges** 
+
+QUESTIONS:
+1. **Operations/Efficiency:** 
+- What areas/month/time of day/incident types are police most/least efficient? (WHY: allocate resources)
+- What causes calls to be most/least efficient? (Connect with distance to police station channel data type, time of day/year, etc.)
+- Instead of efficiency analyze when police actually took action vs. false alarm. 
+
+2. **Incident Patterns:**
+- At which locations do specific incident types occur the most? Most notable patterns? (incident type, false alarm/actual action)
+- At what time of day do specific incident types occur the most? Most notable patterns?
+- (Tim) How do incidents change throughout the months/year? e.g. What years do some incidents peak? (Tim will do an animation showing the incidents by month/year in D3 (month/yearly process), but maybe finding a most notable pattern)
+
+### 4b. Police Efficiency (Nico/Charlene?)
+
+### 4c. Incident Patterns
+
+
+## 5. Executive Summary (Monday together)
+Provide a short nontechnical summary of the most revealing findings of your analysis written for a nontechnical audience. The length should be approximately two pages (if we were using pages…) Take extra care to clean up your graphs, ensuring that best practices for presentation are followed
+
+## 6. Interactive Component (Tim)
+
+## 7. Conclusion (Monday together)
