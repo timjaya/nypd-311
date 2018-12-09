@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+    crossorigin="anonymous">
+
+  <meta charset="utf-8">
+  <style>
+
+    .axis path, .axis line {
+      fill: none;
+      stroke: none; /*black;*/
+      shape-rendering: crispEdges;
+    }
+
+    .play-buttons{
+      margin: 15px;
+    }
+    
+    button{
+      margin: 7px;
+    }
+    
+    .dir-buttons{
+      margin: 15px;
+    }
+    #valuePopover {
+      position: absolute;
+      text-align: center;
+      padding: 2px;
+      font: 12px sans-serif;
+      background: white;
+      border: 0px;
+      border-radius: 1px;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .legendTitle {
+      font-size: 15px;
+      fill: #4F4F4F;
+      font-weight: 12;
+    }
+    
+    .axis text {
+      font-family: Consolas, courier;
+      fill: #000;
+      font-size: 9pt;
+    }
+
+    .yeartext {
+      padding-left: 27px;
+    }
+
+    h1 {
+      padding: 30px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <h1 id="header">NYC 311 Calls: Processing Time Across the Years</h1>
+    </div>
+
+    <div class="row">
+      <div class="col-sm">
+        <h3 class="yeartext"></h3>
+
+        <div class="row play-buttons">
+          <button class="btn btn-dark" type="button" id="play"><span class="fa fa-play"></span></button>
+          <button class="btn btn-dark" type="button" id="pause"><span class="fas fa-pause"></button>
+          <button class="btn btn-dark" type="button" id="reset"><span class="fas fa-undo-alt"></span></button>
+        </div>
+        <div class="row dir-buttons">
+          <button class="btn btn-outline-secondary" type="button" id="left"><span class="fas fa-step-backward"></span></button>
+          <button class="btn btn-outline-secondary" type="button" id="right"><span class="fas fa-step-forward"></span></button>
+        </div>
+        <div class="row">
+            <h5>Choose data:</h5><br>
+        </div>
+        <div class="row data-buttons">
+          
+          <form action="">
+              <input type="radio" name="data-type" class="radio-process" value="process" checked>Processing Time
+              <br>
+              <input type="radio" name="data-type" class="radio-count" value="count">Incident Count
+          </form>
+        </div>
+      </div>
+      <div class="col">
+        <svg></svg>
+        <div id="valuePopover"></div>
+        <div id="legend"></div>
+
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3js.org/d3-array.v1.min.js"></script>
+        <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+        <script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+        <script src="https://d3js.org/d3-color.v1.min.js"></script>
+        <script>
+
+          //orange: from https://beta.observablehq.com/@mbostock/d3-color-schemes
+          color_hue = ["#fff5eb", "#fff5ea", "#fff4e9", "#fff4e8", "#fff3e7", "#fff3e6", "#fff2e6", "#fff2e5", "#fff1e4", "#fff1e3", "#fff0e2", "#fff0e1", "#ffefe0", "#ffefdf", "#ffeede", "#ffeedd", "#feeddc", "#feeddb", "#feecda", "#feecd9", "#feebd8", "#feebd7", "#feead6", "#feead5", "#fee9d4", "#fee9d3", "#fee8d2", "#fee8d1", "#fee7d0", "#fee6cf", "#fee6ce", "#fee5cc", "#fee5cb", "#fee4ca", "#fee4c9", "#fee3c8", "#fee2c7", "#fee2c5", "#fee1c4", "#fee1c3", "#fee0c2", "#fedfc0", "#fedfbf", "#fedebe", "#feddbd", "#feddbb", "#fedcba", "#fedbb9", "#fedab7", "#fddab6", "#fdd9b4", "#fdd8b3", "#fdd8b2", "#fdd7b0", "#fdd6af", "#fdd5ad", "#fdd4ac", "#fdd4aa", "#fdd3a9", "#fdd2a7", "#fdd1a6", "#fdd0a4", "#fdd0a3", "#fdcfa1", "#fdcea0", "#fdcd9e", "#fdcc9d", "#fdcb9b", "#fdca99", "#fdc998", "#fdc896", "#fdc795", "#fdc693", "#fdc591", "#fdc490", "#fdc38e", "#fdc28d", "#fdc18b", "#fdc089", "#fdbf88", "#fdbe86", "#fdbd84", "#fdbc83", "#fdbb81", "#fdba7f", "#fdb97e", "#fdb87c", "#fdb77a", "#fdb679", "#fdb577", "#fdb475", "#fdb374", "#fdb272", "#fdb171", "#fdb06f", "#fdaf6d", "#fdae6c", "#fdad6a", "#fdac69", "#fdab67", "#fdaa65", "#fda964", "#fda762", "#fda661", "#fda55f", "#fda45e", "#fda35c", "#fda25b", "#fda159", "#fda058", "#fd9f56", "#fd9e55", "#fd9d53", "#fd9c52", "#fd9b50", "#fd9a4f", "#fc994d", "#fc984c", "#fc974a", "#fc9649", "#fc9548", "#fc9346", "#fc9245", "#fc9143", "#fc9042", "#fb8f40", "#fb8e3f", "#fb8d3e", "#fb8c3c", "#fb8b3b", "#fa8a3a", "#fa8938", "#fa8837", "#fa8736", "#fa8534", "#f98433", "#f98332", "#f98230", "#f8812f", "#f8802e", "#f87f2c", "#f77e2b", "#f77d2a", "#f77b29", "#f67a27", "#f67926", "#f57825", "#f57724", "#f57623", "#f47522", "#f47420", "#f3731f", "#f3721e", "#f2701d", "#f26f1c", "#f16e1b", "#f16d1a", "#f06c19", "#f06b18", "#ef6a17", "#ef6916", "#ee6815", "#ed6714", "#ed6614", "#ec6513", "#ec6312", "#eb6211", "#ea6110", "#ea6010", "#e95f0f", "#e85e0e", "#e85d0e", "#e75c0d", "#e65b0c", "#e55a0c", "#e4590b", "#e4580b", "#e3570a", "#e25609", "#e15509", "#e05408", "#df5308", "#de5208", "#dd5207", "#dc5107", "#db5006", "#da4f06", "#d94e06", "#d84d05", "#d74c05", "#d64c05", "#d54b04", "#d44a04", "#d24904", "#d14804", "#d04804", "#cf4703", "#cd4603", "#cc4503", "#cb4503", "#c94403", "#c84303", "#c74303", "#c54203", "#c44103", "#c24102", "#c14002", "#bf3f02", "#be3f02", "#bd3e02", "#bb3e02", "#ba3d02", "#b83d02", "#b73c02", "#b53b02", "#b43b02", "#b23a03", "#b13a03", "#af3903", "#ae3903", "#ac3803", "#ab3803", "#aa3703", "#a83703", "#a73603", "#a53603", "#a43503", "#a33503", "#a13403", "#a03403", "#9f3303", "#9d3303", "#9c3203", "#9b3203", "#993103", "#983103", "#973003", "#953003", "#942f03", "#932f03", "#922e04", "#902e04", "#8f2d04", "#8e2d04", "#8d2c04", "#8b2c04", "#8a2b04", "#892b04", "#882a04", "#862a04", "#852904", "#842904", "#832804", "#812804", "#802704", "#7f2704"];
+
+
+          var width = 700,
+            height = 700;
+
+          var svg = d3.select("body").select("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+          //nyc zcta shp file from: https://geo.nyu.edu/catalog/nyu-2451-34509
+          //shp file transformed to json with: http://gipong.github.io/shp2geojson.js/
+
+          d3.queue()
+            .defer(d3.json, "nyc_map.json")
+            .defer(d3.csv, "nyc_efficiency_full.csv")
+            .await(main);
+
+          var currentYear = "2010";
+          d3.select(".yeartext")
+            .text("Year: " + currentYear);
+
+          function main(error, nycMap, data) {
+            if (error) throw error;
+
+            //create map
+            var path = d3.geoPath()
+              .projection(d3.geoConicConformal()
+                .parallels([33, 45])
+                .rotate([75, -39])
+                .fitSize([width, height], nycMap));
+
+
+            //create color scale 
+            var color = d3.scaleQuantize()
+              .domain([
+                d3.min(data.map(d => d.value)),
+                d3.max(data.map(d => d.value))])
+              .range(color_hue);
+
+            //merge the data and geojson 
+
+            //loop through each data value
+            for (var i = 0; i < data.length; i++) {
+
+              //grab zip code
+              var dataZip = data[i].zip;
+
+              //grab data value
+              var dataValue = parseFloat(data[i].value);
+
+              //grab data year
+              var dataYear = data[i].year;
+
+              //find corresponding state inside GeoJSON
+              for (var j = 0; j < nycMap.features.length; j++) {
+                var mapZip = nycMap.features[j].properties.zcta;
+
+                if (mapZip == dataZip) {
+                  //if found, copy data value into json
+                  var properties = nycMap.features[j].properties;
+                  if ("value" in properties) {
+                    properties.value[dataYear] = dataValue;
+
+                  } else {
+                    nycMap.features[j].properties.value = {
+                      [dataYear]: dataValue
+                    };
+                  }
+
+                  break;
+                };
+              };
+            };
+
+
+
+            svg.append("g")
+              .selectAll("path")
+              .data(nycMap.features)
+              .enter()
+              .append("path")
+              .attr("d", path)
+              .style("stroke", "black")
+              .style("stroke-width", .2)
+              .style("fill", function (d) {
+                var value;
+                var year = currentYear;
+                if (("value" in d.properties) && (year in d.properties.value)) {
+                  value = d.properties.value[year];
+                } else {
+                  value = NaN
+                }
+
+                if (value) {
+                  return color(value);
+                } else {
+                  //if value is undefined
+                  return "grey";
+                }
+              })
+              .on("mouseenter", function (d) {
+
+                var coord = d3.mouse(this);
+
+                d3.select(this)
+                  .style("stroke-width", 2)
+                  .style("stroke-dasharray", 0)
+                  .style("stroke", "yellow")
+                  .style("cursor", "pointer");
+
+                d3.select("#valuePopover")
+                  .style("opacity", 1)
+                  .style("left", (coord[0] - 17) + "px")
+                  .style("top", (coord[1] - 17) + "px")
+                  .text(parseFloat(d.properties.value[currentYear]).toFixed(1));
+
+              })
+              .on("mouseleave", function (d) {
+                d3.select(this)
+                  .style("stroke-width", .2)
+                  .style("stroke", "black");
+
+
+                d3.select("#valuePopover")
+                  // .transition()
+                  .style("opacity", 0);
+              });
+
+
+            //create legend
+            var linearGradient = svg.append('defs')
+              .append('linearGradient')
+              .attr('id', 'linear-gradient')
+              .attr("x1", "0%")
+              .attr("y1", "0%")
+              .attr("x2", "100%")
+              .attr("y2", "0%");
+
+            linearGradient.selectAll("stop")
+              .data([
+                { offset: "0%", color: color_hue[0] },
+                { offset: "25%", color: color_hue[parseInt(color_hue.length * 0.25)] },
+                { offset: "50%", color: color_hue[parseInt(color_hue.length * 0.50)] },
+                { offset: "75%", color: color_hue[parseInt(color_hue.length * 0.75)] },
+                { offset: "100%", color: color_hue[color_hue.length - 1] }
+              ])
+              .enter().append("stop")
+              .attr("offset", function (d) {
+                return d.offset;
+              })
+              .attr("stop-color", function (d) {
+                return d.color;
+              });
+
+            var legendX = 10;
+            var legendWidth = 300;
+
+            function makeArr(startValue, stopValue, cardinality) {
+              var arr = [];
+              var currValue = startValue;
+              var step = (stopValue - startValue) / (cardinality - 1);
+              for (var i = 0; i < cardinality; i++) {
+                arr.push(currValue + (step * i));
+              }
+              return arr;
+            }
+            //draw gradient length
+            svg.append("rect")
+              .attr("x", legendX)
+              .attr("y", 30)
+              .attr("width", legendWidth)
+              .attr("height", 15)
+              .style("fill", "url(#linear-gradient)");
+
+            var xLeg = d3.scaleLinear()
+              .domain([d3.min(data.map(d => d.value)),
+              d3.max(data.map(d => d.value))])
+              .range([legendX, legendWidth + 10]);
+
+            //TO DO: tick values need to be a little more precise
+            var axisLeg = d3.axisBottom(xLeg)
+              .tickValues(makeArr(color.domain()[0], color.domain()[1], 5));
+
+            svg
+              .attr("class", "axis")
+              .append("g")
+              .attr("transform", "translate(0, 40)")
+              .call(axisLeg);
+
+            function recolorMap(year) {
+
+              svg.select("g").selectAll("path")
+                .on("mouseenter", function (d) {
+
+                  var coord = d3.mouse(this);
+
+                  d3.select(this)
+                    .style("stroke-width", 2)
+                    .style("stroke-dasharray", 0)
+                    .style("stroke", "yellow")
+                    .style("cursor", "pointer");
+
+                  d3.select("#valuePopover")
+                    .style("opacity", 1)
+                    .style("left", (coord[0] - 17) + "px")
+                    .style("top", (coord[1] - 17) + "px")
+                    .text(parseFloat(d.properties.value[year]).toFixed(1));
+
+                })
+                .on("mouseleave", function (d) {
+                  d3.select(this)
+                    .style("stroke-width", .2)
+                    .style("stroke", "black");
+
+                  d3.select("#valuePopover")
+                    .style("opacity", 0);
+                })
+                .transition()
+                .duration(500)
+                .style("fill", function (d) {
+                  var value;
+                  if (("value" in d.properties) && (year in d.properties.value)) {
+                    value = d.properties.value[year];
+                  } else {
+                    value = NaN
+                  }
+
+                  if (value) {
+                    return color(value);
+                  } else {
+                    //if value is undefined
+                    return "grey";
+                  }
+
+                });
+
+              d3.select(".yeartext")
+                .text("Year: " + year);
+            }
+
+            var timer;
+            function playMap(year_str) {
+
+              //recolor map only if year is under 2019
+              if (parseInt(year_str) < 2019) {
+                var year_int = parseInt(year_str) + 1;
+                timer = d3.interval(function (elapsed) {
+                  recolorMap(year_int.toString());
+
+                  year_int++;
+
+                  year_str = year_int.toString();
+                  currentYear = year_str;
+
+                  if (year_int >= 2019) {
+                    playing = false;
+                    timer.stop();
+                  }
+                }, 1000);
+
+              }
+
+            }
+
+            var playing = false;
+
+            //pause behavior:
+            d3.select("body").select("#pause")
+              .on("click", function () {
+                //only act if playing
+                if (playing) {
+                  timer.stop();
+                  currentYear = (parseInt(currentYear) - 1).toString();
+                  playing = false;
+                };
+              });
+
+            //reset behavior:
+            // - currently playing: stop timer, reset to 2010
+            // - not playing: reset to 2010
+            d3.select("body").select("#reset")
+              .on("click", function () {
+                //if currently playing, stop the timer
+                if (playing) timer.stop();
+                recolorMap("2010");
+                currentYear = "2010";
+                playing = false;
+              });
+
+            //play behavior: 
+            // - 
+            d3.select("body").select("#play")
+              .on("click", function () {
+                if (!playing && (parseInt(currentYear) < 2018)) {
+                  playing = true;
+                  playMap(currentYear);
+                };
+              });
+
+            //left arrow
+            d3.select("body").select("#left")
+              .on("click", function () {
+                if (parseInt(currentYear) > 2010) {
+                  if (playing) {
+                    timer.stop();
+                    currentYear = (parseInt(currentYear) - 1).toString();
+                  }
+                  currentYear = (parseInt(currentYear) - 1).toString();
+                  recolorMap(currentYear);
+                  playing = false;
+                }
+              });
+
+            //right arrow
+            d3.select("body").select("#right")
+              .on("click", function () {
+                if (parseInt(currentYear) < 2018) {
+                  if (playing) {
+                    timer.stop();
+                    currentYear = (parseInt(currentYear) - 1).toString();
+                  };
+                  currentYear = (parseInt(currentYear) + 1).toString();
+                  recolorMap(currentYear);
+                  playing = false;
+                }
+              });
+          };
+
+            //to change data
+            
+        </script>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
