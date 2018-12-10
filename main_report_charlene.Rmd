@@ -4,6 +4,9 @@ output: html_notebook
 ---
 
 # 311 NYPD Data
+```{r}
+
+```
 
 ## 1. Introduction
 
@@ -72,6 +75,8 @@ QUESTIONS:
 - (Tim) How do incidents change throughout the months/year? e.g. What years do some incidents peak? (Tim will do an animation showing the incidents by month/year in D3 (month/yearly process), but maybe finding a most notable pattern)
 
 ### 4b. Police Efficiency (Nico/Charlene?)
+
+Police efficiency also has a visible geographical pattern across New York City. As seen in the following two visualizations, note that the distance to closest station is at a minimum in the requests from Manhattan while request from parts of Staten Island and Brooklyn and Queens have much higher distances. A similar pattern appears in the processing time of the requests from these areas. Processing times in Manhattan tend to be lower than those from the Bronx, Staten Island, and parts of Brooklyn and Queens. This leads us to conclude that the distance to the closest station has a large effect on the processing time of police requests. This information could lead to increased city efforts to allocate resources to Staten Island and parts of Queens to help with the processing time in those areas. 
 
 ### 4c. Incident Patterns
 
