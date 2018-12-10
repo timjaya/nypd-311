@@ -1,7 +1,8 @@
 An exploratory data analysis visualization project in R of NYPD 311 Data.
 
-Below are download links for the dataset:
-- Full 10-Year dataset (~400MB compressed): https://www.dropbox.com/s/lhcm588ejcqgnvw/311_NYPD_FULL.csv.zip?dl=0.
-- 6-month dataset (~200MB): https://www.dropbox.com/s/jx805wfcca008xt/311_NYPD_6month.csv?dl=0.
-- Cleaned 6-month dataset (~140MB): https://www.dropbox.com/s/ldpp0106kcbls0b/cleaned_311_data.zip?dl=0.
-- Police precinct dataset: https://www.dropbox.com/s/4t61thjh4xxmi21/nypd_precincts.csv?dl=0. 
+To run the markdown, you would need to download the following CSV files, containing the cleaned, old, and subset 6-month 311 Data: 
+https://www.dropbox.com/s/7ppvp05h1nue0li/all_data.zip?dl=0.
+
+If you want to download the full dataset, you can find it here (~400MB): https://www.dropbox.com/s/lhcm588ejcqgnvw/311_NYPD_FULL.csv.zip?dl=0.
+
+You can find the police precinct dataset here: https://www.dropbox.com/s/4t61thjh4xxmi21/nypd_precincts.csv?dl=0. 
