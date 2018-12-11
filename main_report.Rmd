@@ -420,7 +420,7 @@ mean_time_zip = mean_time_zip[mean_time_zip$region %in% zip.regions$region,]
 zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Distance to Closest Station",legend="Frequency in 6 Months")
 ```
 
-Spatially, we found that there are similar patterns across boroughs for processing times and distance to stations. This led us to conclude that one’s distance to the nearest police station is one of the biggest factors in determining processing time and service efficiency. 
+Spatially, we found that there are similar patterns across boroughs for processing times and distance to stations. Manhattan has both the lowest processing times and the lowest distance to stations for requests. This led us to conclude that one’s distance to the nearest police station is one of the biggest factors in determining processing time and service efficiency. Since the processing time was so clearly predicted by distance to station, we recommend that more police stations be established in areas such as Brooklyn, Staten Island, Bronx, and Queens in order to drasticall improve processing time. 
 
 Lastly, we analyzed the extreme cases – cases where the processing time is above 3 days – to see whether there are any complaint types that are more poorly handled than the others. We found that derelict vehicle, which is also the complaint type with highest mean processing time, has the highest proportion of extremal cases. Noise complaints also tend to more delayed process times than other complaint types, ostensibly due to the volume of such complaints received. There is potential evidence of inefficiency here, however in general the numbers of such events are small enough that we can conclude the NYPD is handling 311 requests sufficiently well.
 
