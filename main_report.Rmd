@@ -46,7 +46,7 @@ Using the above use cases as our guide, we can then construct the main questions
 
 1. Donghan He: Data preprocessing, enrichment, and engineering, Description of Data and Data Quality
 2. Nico Winata: 
-3. Charlene Luo:
+3. Charlene Luo: Geographical analysis, processing time vs. distance from station, executive summary
 4. Tim Kartawijaya: Motivation, Main Questions, Year-to-Year Analysis, Interactive Component
 
 ## 2. Description of Data 
