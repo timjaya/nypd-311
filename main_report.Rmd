@@ -90,8 +90,6 @@ df
 
 ### 4a. Data Preprocessing
 Note that we implemented the below steps in a separate IPython notebook. You can find the mentioned notebook [here](https://github.com/TimKartawijaya/nypd-311/blob/master/preprocessing/data_cleaning.ipynb). The results of the preprocessing is a CSV file called **cleaned_311_data.csv** which you can download here [here](https://www.dropbox.com/s/ldpp0106kcbls0b/cleaned_311_data.zip?dl=0).
-  
-# LINK TO NOTEBOOK
 
   We keep the following columns: Created Date, Closed Date, Complaint Type, Descriptor, Location Type, Incident Zip, Due Date, Resolution Description, Resolution Action Updated Date, Latitude, and Longitude. 
   
@@ -115,18 +113,19 @@ After the distances to the police precinct centroids are copmuted, we use the 1-
 
 Furthermore, the complaint types and the resolution types column can be way too low-leveled. Human vision needs some sort of dimension reduction first to process messy data. There are many ways to do dimension reduction, one of the more popular ways is clustering. Since we are not allowed to do complicated natural language processing for this project, we do manual clustering. We split the complaint types and the resolution types in the following way. Complaint types are split into five groups: noise, street condition related, disturbance, traffic related and miscellaneous. This sub grouping is based on the reasoning that viewers of this report are renters or buyers, and these categories are the most relevant to them. On the other side, we try to cluster how police department resolves the issue, so we can see the area heterogeneity in police efficiency which would be crucial to renters and buyers. Therefore the resolution types are split into the following: police department acted, police department unable to act and false alarm.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 df_cl = read_csv("cleaned_311_data.csv") #read in tidyverse version
 
 ```
-```{r}
+
+```{r, fig.width=6, fig.height=4}
 g1 = ggplot(df_cl, aes(x = factor(`Complaint Subgroups`))) + geom_bar() + xlab('Complaint types') + ggtitle("Complaint type subgroups")
 g2 = ggplot(df_cl, aes(x = factor(`Resolution Subgroups`))) + geom_bar() + xlab('Resolution types') + ggtitle("Resolution type subgroups")
 g1
 g2
 ```
 As we can see from above, noise and traffic are the top two concerns for the New Yorkers. Further we facet this plot by borough. As suspected, this phenomenon is quite robust across different regions, thus it is worth further invetigation.
-```{r, fig.width=8}
+```{r, fig.width=6, fig.height=4}
 g3 = ggplot(df_cl, aes(x = factor(`Complaint Subgroups`))) + facet_wrap(~Borough)+ geom_bar() + xlab('Complaint types') + ggtitle("Complaint type subgroups") + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 g4 = ggplot(df_cl, aes(x = factor(`Resolution Subgroups`))) + facet_wrap(~Borough)+ geom_bar() + xlab('Resolution types') + ggtitle("Resolution type subgroups") + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 g3
@@ -145,12 +144,12 @@ One of the areas we want to investigate is efficiency of 311 request processing.
 
 We are interested in the distribution of the variable Process.Time, which we defined as request Closed Date minus request Created Date. We first plot the process time distribution in a histogram, filtering out extreme values (requests that take more than 3.5 days to complete). We see that the process times are mostly below 6 hours, but there are a lot of requests that take uncharacteristically long time to resolve. This results in a very right skewed distribution with high kurtosis.
 
-```{r}
+```{r, fig.width=6, fig.height=4, warning = FALSE, message = FALSE}
 library(ggplot2)
 df1 = df[df$Process.Time<5000,]
 df$logtime = log(as.numeric(df$Process.Time))
 df1$Process.Time = df1$Process.Time/60  #change to hour
-ggplot(df1, aes(x = Process.Time, y = ..density..)) + geom_histogram() + scale_x_continuous(name = "Mean Processing Time (hours)")+ ggtitle("Processing Time of 311 Police Requests")
+ggplot(df1, aes(x = Process.Time, y = ..density..)) + geom_histogram() + scale_x_continuous(name = "Mean Processing Time (hours)")+ ggtitle("Processing Time of 311 Police Requests") + labs(y = "Density")
 ```
 
 ```{r}
@@ -158,8 +157,8 @@ df1 = df[df$Process.Time>=5000,]
 ```
 As the histogram appears very right skewed, we will use the log scale to transform the x-axis.
 
-```{r}
-ggplot(df1, aes(x = logtime, y = ..density..)) + geom_histogram(binwidth = 0.5) + scale_x_continuous(name = "Mean Processing Time (hours, log scale)",breaks =c(0,log(30),log(60),log(120),log(240),log(360), log(720), log(1440),log(2880), log(7200)), labels= c("0","0.5","1","2","4","6", "12", "24", "2 days", "5 days"))+ ggtitle("Processing Time of 311 Police Requests")
+```{r, fig.width=6, fig.height=4}
+ggplot(df1, aes(x = logtime, y = ..density..)) + geom_histogram(binwidth = 0.5) + scale_x_continuous(name = "Mean Processing Time (hours, log scale)",breaks =c(0,log(30),log(60),log(120),log(240),log(360), log(720), log(1440),log(2880), log(7200)), labels= c("0","0.5","1","2","4","6", "12", "24", "2 days", "5 days"))+ ggtitle("Processing Time of 311 Police Requests") + labs(y = "Density")
 ```
 
 There are some questions raised here. Firstly, we can investigate how the distribution of process times is affected by other variables, whether there are any patterns we can see in terms of their geography, complaint type, etc. Secondly, we can further focus on the cases with very high process times and attempt to identify what are the contributing factors to these high process times.
@@ -168,7 +167,7 @@ There are some questions raised here. Firstly, we can investigate how the distri
 
 We first look at processing time by complaint type.
 
-```{r}
+```{r, fig.width=6, fig.height=4, warning = FALSE, message = FALSE}
 mean_time <- df[is.na(df1$Complaint.Type)==FALSE,c(4,18)] %>% 
   group_by(Complaint.Type) %>% 
   summarize(mean.process.time = mean(Process.Time)) %>% 
@@ -193,7 +192,7 @@ ggplot(df,aes(x=hour,y=..count../180,fill=Complaint.Subgroups))+geom_histogram(b
 ##### Day of Week
 Below is the distribution of requests by day of week. We see a similar pattern - traffic and street condition requests are inversely correlated with noise. Noise requests normally occur at times when people are at home - Saturday and Sunday, and street condition requests occur during working days. 
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 df$weekdays = strftime(df$Created.Date,'%A')
 df$weekdays = factor(df$weekdays,levels=c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday","Friday", "Saturday"))
 ggplot(df,aes(x=weekdays,y=..count../180,fill=Complaint.Subgroups))+geom_bar()+ scale_y_discrete("Daily average count") + ggtitle("Average number of requests in a day")
@@ -204,7 +203,7 @@ We plot the processing times by hour of day. We see that the general shape of th
 Can we attribute this to an inefficiency in processing requests during the day? Are police stations understaffed during the day than in the evening? Keeping in mind that derelict vehicle requests are received mostly during the day, we think the answer is no. The increase in processing times during the day is due to the type of complaints received - noise complaints received at night are faster to resolve than other types of request, as we have shown earlier.
 If anything, the only inefficiency we can find is the small peak in processing time at 11 pm and 12 am compared to its surroundings. Given the similar type of request composition, we think that the peak is coused by police stations experiencing high request volumes at these times. However, the processing time difference is small and we do not think this is a signficant operational issue.
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 mean_time <- df[is.na(df1$Complaint.Type)==FALSE,c(18,19)] %>% group_by(hour) %>% summarize(mean.process.time = mean(Process.Time)) %>% arrange(mean.process.time)
 mean_time$mean.process.time = mean_time$mean.process.time/60 #to hour
 mean_time = mean_time[is.na(mean_time$hour) ==FALSE,]
@@ -213,7 +212,7 @@ ggplot(mean_time,aes(x=reorder(hour,hour), weight=mean.process.time)) + geom_bar
 
 The weekly data do not show anything we don't already know - days with more street condition requests have higher average request times and the weekends, where most of the complaints are noise-related, have lower processing times.
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 mean_time <- df[is.na(df$weekdays)==FALSE,c(18,21)] %>% group_by(weekdays) %>% summarize(mean.process.time = mean(Process.Time)) %>% arrange(mean.process.time)
 mean_time = mean_time[is.na(mean_time$weekdays) ==FALSE,]
 mean_time$mean.process.time = mean_time$mean.process.time/60
@@ -224,7 +223,7 @@ ggplot(mean_time,aes(x=weekdays, weight=mean.process.time)) + geom_bar() + scale
 
 We want to further investigate requests that take very long to process. The percentage of complaints exceeding 3.5 days, grouped by Complaint Type, are shown below. The raw numbers look healthy - very few requests exceed this threshold. The complaint type with highest number of long process times is derelict vehicle, but as discussed earlier, this is to be expected. There is little evidence of structural inefficiency here due to the low numbers. If anything, noise complaints seem to be consistently higher in processing time than the others.
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 df$outlier = df$Process.Time > 5000
 mean_time_zip <- df[,c(4,22)] %>% group_by(Complaint.Type) %>% summarize(num.outliers = sum(outlier), num = n()) %>% mutate(num.outliers = round(as.numeric(num.outliers), 3)) %>%  arrange(num.outliers)
 mean_time_zip$percent.outliers = mean_time_zip$num.outliers/mean_time_zip$num * 100
@@ -235,7 +234,7 @@ ggplot(mean_time_zip,aes(x=Complaint.Type,y=percent.outliers))+geom_col() + ggti
 
 Lastly, we find it interesting to analyze requests received by 311 that are actually false alarms. We define false alarms according to the resolution description column - these are the incidents where no action was required from the NYPD. As we can see, false alarms comprise nearly 40% of all requests. Some complaint types are more prone to false alarms than others. In particular, transient incidences such as noise, illegal advertising, animal abuse, and drug activity is prone to false alarms. It is very likely that the incident is over before the policemen arrives. This could be significant because that this suggests these incidents more time-sensitive and a delay in processing time can cause the incident to be left unaddressed.
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 df$falsealarm = (df$Resolution.Description == "The Police Department responded to the complaint and determined that police action was not necessary." | df$Resolution.Description == "The Police Department responded to the complaint and with the information available observed no evidence of the violation at that time.")
 
 mean_time_zip <- df[,c(4,23)] %>% group_by(Complaint.Type) %>% summarize(num.outliers = sum(falsealarm), num = n()) %>% mutate(num.outliers = round(as.numeric(num.outliers), 3)) %>%  arrange(num.outliers)
@@ -248,7 +247,7 @@ ggplot(mean_time_zip,aes(x=Complaint.Type,y=percent.false.alarm))+geom_col() + g
 
 Police efficiency also has a visible geographical pattern across New York City. As seen in the following two visualizations, note that the distance to closest station is at a minimum in the requests from Manhattan while request from parts of Staten Island and Brooklyn and Queens have much higher distances. A similar pattern appears in the processing time of the requests from these areas. Processing times in Manhattan tend to be lower than those from the Bronx, Staten Island, and parts of Brooklyn and Queens. This leads us to conclude that the distance to the closest station has a large effect on the processing time of police requests. This information could lead to increased city efforts to allocate resources to Staten Island and parts of Queens to help with the processing time in those areas. 
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 library(choroplethrZip)
 mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,18)] %>% group_by(Incident.Zip) %>% summarize(mean.process.time = mean(Process.Time)) %>% mutate(mean.process.time = round(as.numeric(mean.process.time), 3)) %>%  arrange(mean.process.time)
 
@@ -260,7 +259,7 @@ zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Processing 
 ```
 
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,17)] %>% group_by(Incident.Zip) %>% summarize(mean.distance = mean(Distance.To.Closest.Station)) %>% mutate(mean.distance = round(as.numeric(mean.distance), 3)) %>%  arrange(mean.distance)
 
 data(zip.regions)
@@ -274,7 +273,7 @@ zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Distance to
 
 Next, we will analyze incident patterns throughout the city. By looking at the zip codes of various types of incident types, we were able to visualize patterns of various incident frequencies. Below, we observed that street condition complaints were least common in Manhattan and occurred most often in parts of southern queens and Brooklyn as well as eastern Bronx.  This could be due to better road conditions in Manhattan. 
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,15)] %>% group_by(Incident.Zip, Complaint.Subgroups) %>% summarize(mean.distance = n()) %>% mutate(mean.distance = round(as.numeric(mean.distance), 3)) %>%  arrange(mean.distance)
 
 Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Street condition related",c(1,3)]
@@ -286,7 +285,7 @@ zip_choropleth(Noise,zip_zoom = Noise$region, title="Street Condition Complaints
 
 Next, from the map below,  there is a clear region in Brooklyn and Queens that has a much higher frequency of traffic complaints than anywhere else in New York City. This information suggests that Brooklyn and Queens are areas that need the most work in terms of traffic regulation. The higher ratio of residential areas in these regions may be a factor in this. 
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,15)] %>% group_by(Incident.Zip, Complaint.Subgroups) %>% summarize(mean.distance = n()) %>% mutate(mean.distance = round(as.numeric(mean.distance), 3)) %>%  arrange(mean.distance)
 
 Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Traffic related",c(1,3)]
@@ -298,7 +297,7 @@ zip_choropleth(Noise,zip_zoom = Noise$region, title="Traffic Complaints")
 
 From the map below, we observed that noise complaints occur most often in the Bronx, Lower East Side, and Brooklyn. This would be interesting to overlay with demographic information about resident age and occupation. These regions may have the highest noise complaints because there are more young people making noise at night. This information would also be useful for people interested in moving into New York City. Knowing which regions receive the most noise complaints could determine the best quiet (or lively) place to live that suits them.
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,15)] %>% group_by(Incident.Zip, Complaint.Subgroups) %>% summarize(mean.distance = n()) %>% mutate(mean.distance = round(as.numeric(mean.distance), 3)) %>%  arrange(mean.distance)
 
 Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Noise",c(1,3)]
@@ -311,7 +310,7 @@ zip_choropleth(Noise,zip_zoom = Noise$region, title="Noise Complaints")
 
 However, not all types of complaints show a clear geographical pattern for frequencies. Below, we have a map of complaints regarding urinating in public. As shown, there is no clear borough that has the most urination incidents. From this map, we can conclude that public urination does not change predictably along geographic regions. More information is needed in order to analyze the underlying causes of higher public urination frequencies. The same analysis applies to animal abuse frequencies, shown further below.
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 dfold = read.csv("311_NYPD_6month.csv") #read old files to get additional data
 
 mean_time_zip <- dfold[is.na(dfold$Incident.Zip)==FALSE,c(9,6)] %>% group_by(Incident.Zip, Complaint.Type) %>% summarize(mean.distance = n()) %>% mutate(mean.distance = round(as.numeric(mean.distance), 3)) %>%  arrange(mean.distance)
@@ -323,7 +322,7 @@ Noise = Noise[Noise$region %in% zip.regions$region,]
 zip_choropleth(Noise,zip_zoom = Noise$region, title="Complaints about Urinating in Public")
 ```
 
-```{r}
+```{r, fig.width=6, fig.height=4}
 mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,4)] %>% group_by(Incident.Zip, Complaint.Type) %>% summarize(mean.distance = n()) %>% mutate(mean.distance = round(as.numeric(mean.distance), 3)) %>%  arrange(mean.distance)
 
 Noise = mean_time_zip[mean_time_zip$Complaint.Type %in% "Animal Abuse",c(1,3)]
@@ -343,7 +342,7 @@ df_allyears
 ```
 
 First, we'd like to see how the count 311 calls change year to year. 
-```{r}
+```{r, fig.width=6, fig.height=4}
 df_all_agg = df_allyears %>%
   group_by(year) %>%
   summarize(
@@ -355,11 +354,11 @@ ggplot(data = df_all_agg, mapping = aes(x = year, y = sum_count)) + geom_line() 
 ```
 
 Then, we'd like to see how efficiency is affected year to year. 
-```{r}
+```{r, fig.width=6, fig.height=4}
 ggplot(data = df_all_agg, mapping = aes(x = year, y = mean_process)) + geom_line() + geom_point()
 ```
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.width=6, fig.height=4}
 df_allyears_group = read_csv("nyc_groupedby_subgroup.csv")
 df_agg_group = df_allyears_group %>%
   group_by_(.dots = c("year","type")) %>%
