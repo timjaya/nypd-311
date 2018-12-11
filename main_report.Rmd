@@ -354,13 +354,17 @@ df_all_agg = df_allyears %>%
     mean_process = mean(process_time)
   )
 
-ggplot(data = df_all_agg, mapping = aes(x = year, y = sum_count)) + geom_line() + geom_point()
+ggplot(data = df_all_agg, mapping = aes(x = year, y = sum_count)) + geom_line() + geom_point() + ggtitle("311 Calls Count Year to Year") + labs(x = "Year", y = "Count (in thousands)") + scale_y_continuous(labels = c(200,400,600), breaks = 10^5*c(2,4,6))
 ```
+We can see that the number of calls year to year increase linearly. This is probably due to the increase in population as well as an awareness and increased effort of using 311 calls.
 
-Then, we'd like to see how efficiency is affected year to year. 
+Then, we'd like to see how average processing time is affected year to year. 
 ```{r, fig.width=6, fig.height=4}
-ggplot(data = df_all_agg, mapping = aes(x = year, y = mean_process)) + geom_line() + geom_point()
+ggplot(data = df_all_agg, mapping = aes(x = year, y = mean_process)) + geom_line() + geom_point() + ggtitle("311 Processing Time Year to Year") + labs(x = "Year", y = "Average Processing Time (hours)")
 ```
+The beginning years (2010-2014) probably have a much lower processing time due to the lack of data points. However, in the later years we can see that the NYPD has improved their efficiency the past two years.
+
+Finally, let's evaluate how the NYPD is performing in processing different kinds of incident types. 
 
 ```{r, warning=FALSE, message=FALSE, fig.width=6, fig.height=4}
 df_allyears_group = read_csv("nyc_groupedby_subgroup.csv")
@@ -372,11 +376,14 @@ df_agg_group = df_allyears_group %>%
   ) %>%
   filter(type != 0)
 
-ggplot(data = df_agg_group, mapping = aes(x = year, y = sum_count, color = type)) + geom_point() + geom_line()
+ggplot(data = df_agg_group, mapping = aes(x = year, y = sum_count, color = type)) + geom_point() + geom_line() + ggtitle("311 Call Count Year to Year by Incident Type") + labs(x = "Year", y = "Count (in Thousands)", color = "Incident Type") + scale_y_continuous(labels = c(100,200,300,400), breaks = 10^5*c(1,2,3,4))
 
-ggplot(data = df_agg_group, mapping = aes(x = year, y = mean_process, color = type)) + geom_point() + geom_line()
+ggplot(data = df_agg_group, mapping = aes(x = year, y = mean_process, color = type)) + geom_point() + geom_line() + ggtitle("Average Processing Times Year to Year by Incident Type") + labs(x = "Year", y = "Average Processing Time (hours)", color = "Incident Type")
 
 ```
+
+From the results above, we can see that Noise and Traffic related complaints grow much more rapidly year to year than other types of complaints, probably due to the increase in population. The interesting fact is that the increase in Noise/Traffic complaints causes other incident types to have a higher processing time, e.g. Disturbance, even though the other incidents don't grow as fast. From the results above we can reasonably conclude that a rapid increase in one type of incident causes higher processing time not only for that incident but others as well.
+
 ## 5. Interactive Component
 
 In the analyses above, we were able to see patterns in regards to time and space, but not both at the same time. To address this problem, we created an interactive tool in D3 to help users visualize both spatial and chronological patterns on how 311 calls is processed year to year and how 311 complaints are submitted hour by hour.
@@ -384,8 +391,9 @@ In the analyses above, we were able to see patterns in regards to time and space
 You can find the year to year D3 tool [here](http://bl.ocks.org/TimKartawijaya/raw/f4084b273a5ea8dbc62ccfad30b64e8f/) and the hour by hour tool [here](http://bl.ocks.org/TimKartawijaya/raw/51d9b98c51df778c50ba2d7d38bf7c57/).
 
 By using the tool above, we were able to come up with a few insights:
-
-- 
+- In the beginning years (2010-2014), it looks as if police are much more efficient, but this is due to the lack of data as shown in the line graph above. 
+- From 2014-2018, on average NYPD are much less efficient in the Bronx and Queens. As stated before, in Queens this is probably due to the lack of police stations. However, for the Bronx, it is interesting to note that the police station average distance is not too different with Manhattan. The Bronx might display higher processing time due to a larger number of calls, but further research can be done on this fact.
+- As stated above, most complaints are reported near midnight. We can see that most calls originate from Upper West and on the area between Brooklyn and Queens. 
 
 Next steps for D3 Tool:
 
