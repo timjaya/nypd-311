@@ -1,6 +1,7 @@
 ---
-title: "311 NYPD Data: Understanding Complaint Patterns and NYPD Operations"
+title: '311 NYPD Data: Understanding Complaint Patterns and NYPD Operations'
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 ---
@@ -45,7 +46,7 @@ Using the above use cases as our guide, we can then construct the main questions
 
 1. Donghan He: Data preprocessing, enrichment, and engineering, Description of Data and Data Quality
 2. Nico Winata: 
-3. Charlene Luo:
+3. Charlene Luo: Geographical analysis, processing time vs. distance from station, executive summary
 4. Tim Kartawijaya: Motivation, Main Questions, Year-to-Year Analysis, Interactive Component
 
 ## 2. Description of Data 
@@ -85,7 +86,6 @@ Next, let's load the preprocessed data and take a peek at the data.
 
 ```{r, warning=FALSE, message=FALSE}
 df = read.csv("cleaned_311_data.csv")
-df
 ```
 
 ### 4a. Data Preprocessing
@@ -113,9 +113,8 @@ After the distances to the police precinct centroids are copmuted, we use the 1-
 
 Furthermore, the complaint types and the resolution types column can be way too low-leveled. Human vision needs some sort of dimension reduction first to process messy data. There are many ways to do dimension reduction, one of the more popular ways is clustering. Since we are not allowed to do complicated natural language processing for this project, we do manual clustering. We split the complaint types and the resolution types in the following way. Complaint types are split into five groups: noise, street condition related, disturbance, traffic related and miscellaneous. This sub grouping is based on the reasoning that viewers of this report are renters or buyers, and these categories are the most relevant to them. On the other side, we try to cluster how police department resolves the issue, so we can see the area heterogeneity in police efficiency which would be crucial to renters and buyers. Therefore the resolution types are split into the following: police department acted, police department unable to act and false alarm.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 df_cl = read_csv("cleaned_311_data.csv") #read in tidyverse version
-
 ```
 
 ```{r, fig.width=6, fig.height=4}
@@ -255,7 +254,7 @@ data(zip.regions)
 names(mean_time_zip) <- c("region","value")
 mean_time_zip$region = as.character(mean_time_zip$region)
 mean_time_zip = mean_time_zip[mean_time_zip$region %in% zip.regions$region,]
-zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Processing Time of 311 Police Requests (hour)")
+zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Processing Time of 311 Police Requests (hour)",legend="Frequency in 6 Months")
 ```
 
 
@@ -266,7 +265,7 @@ data(zip.regions)
 names(mean_time_zip) <- c("region","value")
 mean_time_zip$region = as.character(mean_time_zip$region)
 mean_time_zip = mean_time_zip[mean_time_zip$region %in% zip.regions$region,]
-zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Distance to Closest Station")
+zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Distance to Closest Station",legend="Frequency in 6 Months")
 ```
 
 ### 4c. Incident Patterns
@@ -280,7 +279,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Street condition r
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Street Condition Complaints")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Street Condition Complaints",legend="Frequency in 6 Months")
 ```
 
 Next, from the map below,  there is a clear region in Brooklyn and Queens that has a much higher frequency of traffic complaints than anywhere else in New York City. This information suggests that Brooklyn and Queens are areas that need the most work in terms of traffic regulation. The higher ratio of residential areas in these regions may be a factor in this. 
@@ -292,7 +291,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Traffic related",c
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Traffic Complaints")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Traffic Complaints",legend="Frequency in 6 Months")
 ```
 
 From the map below, we observed that noise complaints occur most often in the Bronx, Lower East Side, and Brooklyn. This would be interesting to overlay with demographic information about resident age and occupation. These regions may have the highest noise complaints because there are more young people making noise at night. This information would also be useful for people interested in moving into New York City. Knowing which regions receive the most noise complaints could determine the best quiet (or lively) place to live that suits them.
@@ -304,7 +303,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Noise",c(1,3)]
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Noise Complaints")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Noise Complaints",legend="Frequency in 6 Months")
 
 ```
 
@@ -319,7 +318,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Type %in% "Urinating in Public",c(
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Complaints about Urinating in Public")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Complaints about Urinating in Public",legend="Frequency in 6 Months")
 ```
 
 ```{r, fig.width=6, fig.height=4}
@@ -329,7 +328,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Type %in% "Animal Abuse",c(1,3)]
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Animal Abuse")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Animal Abuse",legend="Frequency in 6 Months")
 ```
 
 ### 4d. Year-to-Year Patterns
@@ -338,7 +337,6 @@ Next, let's look at how 311 processing time and incident count changes year to y
 
 ```{r}
 df_allyears = read_csv("nyc_groupedby_process_count.csv")
-df_allyears
 ```
 
 First, we'd like to see how the count 311 calls change year to year. 
@@ -373,11 +371,7 @@ ggplot(data = df_agg_group, mapping = aes(x = year, y = sum_count, color = type)
 ggplot(data = df_agg_group, mapping = aes(x = year, y = mean_process, color = type)) + geom_point() + geom_line()
 
 ```
-
-## 5. Executive Summary
-
-
-## 6. Interactive Component
+## 5. Interactive Component
 
 In the analyses above, we were able to see patterns in regards to time and space, but not both at the same time. To address this problem, we created an interactive tool in D3 to help users visualize both spatial and chronological patterns on how 311 calls is processed year to year and how 311 complaints are submitted hour by hour.
 
@@ -394,4 +388,14 @@ Next steps for D3 Tool:
 - Use tool to look at more data patterns e.g. incident count, specific incident types, by day of week.
 - Refactor code, since code is a bit messy due to the time constraint. 
 
+## 6. Executive Summary
+We analyzed the patterns of 311 service requests, focusing on time-related patterns and space-related patterns. We discovered that noise complaint is the largest complaint type, comprising over 50% of all complaints received by NYPD. They are mostly received after 10 pm and before 3 am, and more frequently on weekends than weekdays. The second most common complaint type is traffic and street condition related complaint, comprising complaints regarding poor traffic, blocked driveways, illegal parking, and derelict vehicles. These complaints are mostly received during the day, making them inversely related to noise complaints. Geographically, there were many significant patterns that appeared for each incident type. For example, Brooklyn and Queens clearly have the highest frequency of traffic complaints while noise complaints are mostly concentrated in Brooklyn, Lower East Side, and the Bronx. However, not all incidents had such clear patterns. Public urination, for example, seemed to be scattered unpredictably across the map. Other complaints, encompassing things such as illegal advertisement posting, animal abuse, graffiti, and so on are received occasionally but we do not have enough data and did not show enough of a geographical pattern in order to draw any conclusions. 
+
+In addition to discovering patterns in complaints received, our other focus is discovering whether there are any structural inefficiencies in how the complaints are handled. Namely, we want to find out whether there are any times of day when complaints take longer to process, or whether there are any regions in New York where the police department is particularly inefficient. Temporally, we did not find any evidence of this. We found a small increase in average processing time of complaints received near midnight, but this is not significant enough to require any operational actions. Spatially, we found that there are similar patterns across boroughs for processing times and distance to stations. This led us to conclude that one’s distance to the nearest police station is one of the biggest factors in determining processing time and service efficiency. 
+
+Lastly, we analyzed the extreme cases – cases where the processing time is above 3 days – to see whether there are any complaint types that are more poorly handled than the others. We found that derelict vehicle, which is also the complaint type with highest mean processing time, has the highest proportion of extremal cases. Noise complaints also tend to more delayed process times than other complaint types, ostensibly due to the volume of such complaints received. There is potential evidence of inefficiency here, however in general the numbers of such events are small enough that we can conclude the NYPD is handling 311 requests sufficiently well.
+
+
 ## 7. Conclusion
+
+We found that the strongest predictor of high processing time was distance to a police station. Manhattan has a high density of police stations, and we found that this coincided with the low processing time for Manhattan incidents. The converse is true outside of Manhattan. Traffic and noise complaints are among the most common complaint types and they are most concentrated in places outside of Manhattan. We can strongly improve efficiency by building more police stations in underserved regions. 
