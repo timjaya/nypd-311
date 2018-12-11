@@ -403,11 +403,37 @@ Next steps for D3 Tool:
 - Refactor code, since code is a bit messy due to the time constraint. 
 
 ## 6. Executive Summary
+
 We analyzed the patterns of 311 service requests, focusing on time-related patterns and space-related patterns. We discovered that noise complaint is the largest complaint type, comprising over 50% of all complaints received by NYPD. They are mostly received after 10 pm and before 3 am, and more frequently on weekends than weekdays. The second most common complaint type is traffic and street condition related complaint, comprising complaints regarding poor traffic, blocked driveways, illegal parking, and derelict vehicles. These complaints are mostly received during the day, making them inversely related to noise complaints. Geographically, there were many significant patterns that appeared for each incident type. For example, Brooklyn and Queens clearly have the highest frequency of traffic complaints while noise complaints are mostly concentrated in Brooklyn, Lower East Side, and the Bronx. However, not all incidents had such clear patterns. Public urination, for example, seemed to be scattered unpredictably across the map. Other complaints, encompassing things such as illegal advertisement posting, animal abuse, graffiti, and so on are received occasionally but we do not have enough data and did not show enough of a geographical pattern in order to draw any conclusions. 
 
-In addition to discovering patterns in complaints received, our other focus is discovering whether there are any structural inefficiencies in how the complaints are handled. Namely, we want to find out whether there are any times of day when complaints take longer to process, or whether there are any regions in New York where the police department is particularly inefficient. Temporally, we did not find any evidence of this. We found a small increase in average processing time of complaints received near midnight, but this is not significant enough to require any operational actions. Spatially, we found that there are similar patterns across boroughs for processing times and distance to stations. This led us to conclude that one’s distance to the nearest police station is one of the biggest factors in determining processing time and service efficiency. 
+In addition to discovering patterns in complaints received, our other focus is discovering whether there are any structural inefficiencies in how the complaints are handled. Namely, we want to find out whether there are any times of day when complaints take longer to process, or whether there are any regions in New York where the police department is particularly inefficient. Temporally, we did not find any evidence of this. We found a small increase in average processing time of complaints received near midnight, but this is not significant enough to require any operational actions. 
 
-Lastly, we analyzed the extreme cases – cases where the processing time is above 3 days – to see whether there are any complaint types that are more poorly handled than the others. We found that derelict vehicle, which is also the complaint type with highest mean processing time, has the highest proportion of extremal cases. Noise complaints also tend to more delayed process times than other complaint types, ostensibly due to the volume of such complaints received. There is potential evidence of inefficiency here, however in general the numbers of such events are small enough that we can conclude the NYPD is handling 311 requests sufficiently well.
+```{r, fig.width=6, fig.height=4}
+library(choroplethrZip)
+mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,18)] %>% group_by(Incident.Zip) %>% summarize(mean.process.time = mean(Process.Time)) %>% mutate(mean.process.time = round(as.numeric(mean.process.time), 3)) %>%  arrange(mean.process.time)
+
+data(zip.regions)
+names(mean_time_zip) <- c("region","value")
+mean_time_zip$region = as.character(mean_time_zip$region)
+mean_time_zip = mean_time_zip[mean_time_zip$region %in% zip.regions$region,]
+zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Processing Time of 311 Police Requests (hour)",legend="Frequency in 6 Months")
+```
+
+```{r, fig.width=6, fig.height=4}
+mean_time_zip <- df[is.na(df1$Incident.Zip)==FALSE,c(7,17)] %>% group_by(Incident.Zip) %>% summarize(mean.distance = mean(Distance.To.Closest.Station)) %>% mutate(mean.distance = round(as.numeric(mean.distance), 3)) %>%  arrange(mean.distance)
+
+data(zip.regions)
+names(mean_time_zip) <- c("region","value")
+mean_time_zip$region = as.character(mean_time_zip$region)
+mean_time_zip = mean_time_zip[mean_time_zip$region %in% zip.regions$region,]
+zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Distance to Closest Station",legend="Frequency in 6 Months")
+```
+
+Spatially, as seen above, we found that there are similar patterns across boroughs for processing times and distance to stations. Manhattan has both the lowest processing times and the lowest distance to stations for requests. This led us to conclude that one’s distance to the nearest police station is one of the biggest factors in determining processing time and service efficiency. Since the processing time was so clearly predicted by distance to station, we recommend that more police stations be established in areas such as Brooklyn, Staten Island, Bronx, and Queens in order to drasticall improve processing time. 
+
+Furthermore, we analyzed the extreme cases – cases where the processing time is above 3 days – to see whether there are any complaint types that are more poorly handled than the others. We found that derelict vehicle, which is also the complaint type with highest mean processing time, has the highest proportion of extremal cases. Noise complaints also tend to more delayed process times than other complaint types, ostensibly due to the volume of such complaints received.
+
+Lastly, we analyzed false alarms in the dataset, which we define as incidents for which no police action was required. Noise complaints, traffic complaints, and complaints such as illegal advertising are particularly prone to false alarms, suggesting that these are time-sensitive requests where process time might be more important. Analyzing false alarms points us to which type of requests to prioritize.
 
 
 ## 7. Conclusion
