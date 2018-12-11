@@ -95,7 +95,7 @@ Note that we implemented the below steps in a separate IPython notebook. You can
   
   First and foremost, we would like to see if we can impute any data. Unfortunately, as most of the data are text/string based, we can't impute the data without complex natural language modeling. Even for the date time missing values, we don't have straightforward ways of imputing them. For most of the incident zip/longitude-latitude data, ideally we can use one part to get a good approximation of the other (for example use the longitude-latitude pair to predict the zip); however, for most of the cases, both zip and longitude-latitude are missing concurrently. For the small-percentage of cases that only the incidents zips are missing, we use the 1-nearest-neighbor method to impute the zips using longitude-latitude data. Namely, we find the closest data (in terms of longitude/latitude) that has an observed zip code. 
   
-  Secondly, we engineer two features. The first feature is police efficiency. This is done by calculating how long it took for the police department to process a request. Namely, we let (closed date - created date). 
+  Secondly, we engineer two features. The first feature is police efficiency. This is done by calculating how long it took for the police department to process a request. Namely, we let (closed date - created date). Moreover, we remove extreme values (requests took longer than 3.5 days to complete), since they might be simply negligence to report a finished request.
   
   The second feature describes police proximity. This feature is a bit harder to calculate. Firstly we get the police precinct data from NYC open data as described before. Since there are no complete data on the internet that supplies all 77 precincts' longitude latitude data, we approximate them using the multi-polygon's centroids. We calculate the centroid data the following way, which is simply the arithmetic mean of the vertices. 
   $$ \hat{police\_loc} = \frac{1}{\# vertices}\sum_i vertex\_loc_i $$
@@ -123,7 +123,7 @@ g2 = ggplot(df_cl, aes(x = factor(`Resolution Subgroups`))) + geom_bar() + xlab(
 g1
 g2
 ```
-As we can see from above, noise and traffic are the top two concerns for the New Yorkers. Further we facet this plot by borough. As suspected, this phenomenon is quite robust across different regions, thus it is worth further invetigation.
+As we can see from above, noise and traffic are the top two concerns for the New Yorkers. Further we facet this plot by borough. As suspected, this phenomenon is quite robust across different regions, thus it is worth further invetigation. We also plot the faceted bar graph (faceting by Borough) for the subgrouped resolution type column. As we can see, most of them are false alarms.
 ```{r, fig.width=6, fig.height=4}
 g3 = ggplot(df_cl, aes(x = factor(`Complaint Subgroups`))) + facet_wrap(~Borough)+ geom_bar() + xlab('Complaint types') + ggtitle("Complaint type subgroups") + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 g4 = ggplot(df_cl, aes(x = factor(`Resolution Subgroups`))) + facet_wrap(~Borough)+ geom_bar() + xlab('Resolution types') + ggtitle("Resolution type subgroups") + theme(axis.text.x = element_text(angle = 30, hjust = 1))
