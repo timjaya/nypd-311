@@ -86,7 +86,6 @@ Next, let's load the preprocessed data and take a peek at the data.
 
 ```{r, warning=FALSE, message=FALSE}
 df = read.csv("cleaned_311_data.csv")
-df
 ```
 
 ### 4a. Data Preprocessing
@@ -257,7 +256,7 @@ data(zip.regions)
 names(mean_time_zip) <- c("region","value")
 mean_time_zip$region = as.character(mean_time_zip$region)
 mean_time_zip = mean_time_zip[mean_time_zip$region %in% zip.regions$region,]
-zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Processing Time of 311 Police Requests (hour)",legend="Frequency Per Year")
+zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Processing Time of 311 Police Requests (hour)",legend="Frequency in 6 Months")
 ```
 
 
@@ -268,7 +267,7 @@ data(zip.regions)
 names(mean_time_zip) <- c("region","value")
 mean_time_zip$region = as.character(mean_time_zip$region)
 mean_time_zip = mean_time_zip[mean_time_zip$region %in% zip.regions$region,]
-zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Distance to Closest Station",legend="Frequency Per Year")
+zip_choropleth(mean_time_zip,zip_zoom = mean_time_zip$region, title="Distance to Closest Station",legend="Frequency in 6 Months")
 ```
 
 ### 4c. Incident Patterns
@@ -282,7 +281,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Street condition r
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Street Condition Complaints",legend="Frequency Per Year")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Street Condition Complaints",legend="Frequency in 6 Months")
 ```
 
 Next, from the map below,  there is a clear region in Brooklyn and Queens that has a much higher frequency of traffic complaints than anywhere else in New York City. This information suggests that Brooklyn and Queens are areas that need the most work in terms of traffic regulation. The higher ratio of residential areas in these regions may be a factor in this. 
@@ -294,7 +293,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Traffic related",c
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Traffic Complaints",legend="Frequency Per Year")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Traffic Complaints",legend="Frequency in 6 Months")
 ```
 
 From the map below, we observed that noise complaints occur most often in the Bronx, Lower East Side, and Brooklyn. This would be interesting to overlay with demographic information about resident age and occupation. These regions may have the highest noise complaints because there are more young people making noise at night. This information would also be useful for people interested in moving into New York City. Knowing which regions receive the most noise complaints could determine the best quiet (or lively) place to live that suits them.
@@ -306,7 +305,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Subgroups %in% "Noise",c(1,3)]
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Noise Complaints",legend="Frequency Per Year")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Noise Complaints",legend="Frequency in 6 Months")
 
 ```
 
@@ -321,7 +320,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Type %in% "Urinating in Public",c(
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Complaints about Urinating in Public",legend="Frequency Per Year")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Complaints about Urinating in Public",legend="Frequency in 6 Months")
 ```
 
 ```{r, fig.width=4}
@@ -331,7 +330,7 @@ Noise = mean_time_zip[mean_time_zip$Complaint.Type %in% "Animal Abuse",c(1,3)]
 names(Noise) <- c("region","value")
 Noise$region = as.character(Noise$region)
 Noise = Noise[Noise$region %in% zip.regions$region,]
-zip_choropleth(Noise,zip_zoom = Noise$region, title="Animal Abuse",legend="Frequency Per Year")
+zip_choropleth(Noise,zip_zoom = Noise$region, title="Animal Abuse",legend="Frequency in 6 Months")
 ```
 
 ### 4d. Year-to-Year Patterns
@@ -340,7 +339,6 @@ Next, let's look at how 311 processing time and incident count changes year to y
 
 ```{r}
 df_allyears = read_csv("nyc_groupedby_process_count.csv")
-df_allyears
 ```
 
 First, we'd like to see how the count 311 calls change year to year. 
