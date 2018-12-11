@@ -401,3 +401,5 @@ Next steps for D3 Tool:
 - Refactor code, since code is a bit messy due to the time constraint. 
 
 ## 7. Conclusion
+
+We found that the strongest predictor of high processing time was distance to a police station. Manhattan has a high density of police stations, and we found that this coincided with the low processing time for Manhattan incidents. The converse is true outside of Manhattan. Traffic and noise complaints are among the most common complaint types and they are most concentrated in places outside of Manhattan. We can strongly improve efficiency by building more police stations in underserved regions. 
