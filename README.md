@@ -1,4 +1,4 @@
-An exploratory data analysis visualization project in R of NYPD 311 Data. Check out our main report here: https://github.com/TimKartawijaya/nypd-311/blob/master/main_report.pdf. And our fancy D3 visualizations here: https://bl.ocks.org/TimKartawijaya.
+An exploratory data analysis visualization project in R of NYPD 311 Data. Check out our main report here: https://github.com/timjaya/nypd-311/blob/master/main_report.pdf. And our fancy D3 visualizations here: https://bl.ocks.org/timjaya.
 
 To run the markdown, you would need to download the following CSV files, containing the cleaned, old, and subset 6-month 311 Data: 
 https://www.dropbox.com/s/7ppvp05h1nue0li/all_data.zip?dl=0.
